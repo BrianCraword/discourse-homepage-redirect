@@ -1,11 +1,10 @@
 plugins:
-  homepage_redirect:
-    enabled:
-      default: true
-      client: true
-      type: bool
+  homepage_redirect_enabled:
+    default: true
+    client: true
+    type: bool
 
-    destination_path:
-      default: "/discourse-ai/ai-bot/conversations"
-      client: true
-      type: text
+  homepage_redirect_destination_path:
+    default: "/discourse-ai/ai-bot/conversations"
+    client: true
+    type: text
