@@ -1,0 +1,8 @@
+{
+    "name": "Discourse Login Redirect",
+    "about": "Redirect logged-in users to the AI conversations page",
+    "version": "0.1.0",
+    "authors": "BrianCrawford",
+    "url": "https://community.victoriouschristians.com",
+    "required_version": "3.1.0"
+}
