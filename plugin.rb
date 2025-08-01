@@ -6,24 +6,16 @@
 # required_version: 3.1.0
 
 after_initialize do
+  ApplicationController.class_eval do
+    before_action :redirect_logged_in_users_to_ai_home
 
-  require_dependency 'discourse_constraint'
+    def redirect_logged_in_users_to_ai_home
+      logged_in_homepage = "/discourse-ai/ai-bot/conversations"
+      homepage_paths = ["/", "/latest"]
 
-  # This constraint checks if the user is logged in
-  class LoggedInConstraint
-    def matches?(request)
-      current_user = CurrentUser.lookup_from_env(request.env)
-      current_user.present?
+      if current_user && homepage_paths.include?(request.path)
+        redirect_to(logged_in_homepage) and return
+      end
     end
   end
-
-  # Redirect "/" and "/latest" to the AI Conversations page for logged-in users
-  Discourse::Application.routes.prepend do
-    constraints(LoggedInConstraint.new) do
-      get '/' => redirect('/discourse-ai/ai-bot/conversations')
-      get '/latest' => redirect('/discourse-ai/ai-bot/conversations')
-    end
-  end
-
 end
-
