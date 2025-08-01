@@ -1,8 +1,8 @@
 # name: discourse-homepage-redirect
 # about: Sets AI Conversations as the default homepage for logged-in users
 # version: 0.2.0
-# authors: YourName
-# url: https://your-discourse-site.example.com
+# authors: BrianCrawford
+# url: https://victoriouschristians.com
 # required_version: 3.1.0
 
 after_initialize do
