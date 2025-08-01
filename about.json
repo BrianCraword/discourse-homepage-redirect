@@ -1,5 +1,5 @@
 {
-    "name": "Discourse Login Redirect",
+    "name": "Discourse Homepage Redirect",
     "about": "Redirect logged-in users to the AI conversations page",
     "version": "0.1.0",
     "authors": "BrianCrawford",
