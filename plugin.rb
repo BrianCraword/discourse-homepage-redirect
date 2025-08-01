@@ -1,4 +1,4 @@
-# name: discourse-login-redirect
+# name: discourse-homepage-redirect
 # about: Redirect logged-in users to the AI conversations page
 # version: 0.1.0
 # authors: BrianCrawford
