@@ -1,6 +1,6 @@
 # name: discourse-homepage-redirect
 # about: Configurable homepage redirect for logged-in users
-# version: 0.4.0
+# version: 0.3.0
 # authors: Brian Crawford
 # url: https://victoriouschristians.com
 # required_version: 3.1.0
@@ -20,15 +20,11 @@ after_initialize do
       return if destination.blank?                         # nothing set
       return if request.path == destination                # already there
 
-      # Define which "home" routes we want to override
+      # Define which “home” routes we want to override
       homepage_paths = ["/", "/latest"]
 
       if current_user && homepage_paths.include?(request.path)
-        # Only redirect if we haven't already done so this session
-        unless session[:homepage_redirected]
-          session[:homepage_redirected] = true
-          redirect_to destination
-        end
+        redirect_to destination
       end
     end
   end
