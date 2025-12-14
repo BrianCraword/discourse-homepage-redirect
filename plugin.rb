@@ -24,9 +24,12 @@ after_initialize do
       homepage_paths = ["/", "/latest"]
 
       if current_user && homepage_paths.include?(request.path)
-        # Only redirect if we haven't already done so this session
-        unless session[:homepage_redirected]
-          session[:homepage_redirected] = true
+        # Only redirect if coming from login/session pages
+        referrer = request.referrer.to_s
+        if referrer.include?("/session") || 
+           referrer.include?("/login") || 
+           referrer.include?("/signup") ||
+           referrer.include?("/auth/")
           redirect_to destination
         end
       end
