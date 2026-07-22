@@ -1,10 +1,46 @@
 plugins:
+  # Master switch. Off = zero behavior change from stock Discourse:
+  # members and guests both get whatever owns the homepage (on VC, the
+  # VC-Canvas Community Plaza via its custom_homepage claim).
   homepage_redirect_enabled:
     default: true
-    client: true
-    type: bool
+    client: false
 
+  # Where logged-in members land. Internal path only (must start with a
+  # single "/"); invalid or external values disable the redirect rather
+  # than half-working. On VC this is the Feed — the members' front door.
   homepage_redirect_destination_path:
-    default: "/discourse-ai/ai-bot/conversations"
-    client: true
-    type: text
+    default: "/feed"
+    client: false
+    type: string
+
+  # Which paths count as "home". Default is the site root only.
+  # DELIBERATELY not "/latest": with mode=always, redirecting /latest
+  # would make the Discussions/Latest nav destination permanently
+  # unreachable for members. Add it here only if that is truly intended.
+  homepage_redirect_paths:
+    default: "/"
+    client: false
+    type: list
+    list_type: simple
+
+  # Optional scoping: only members of these groups are redirected.
+  # Empty = all logged-in members. Guests are never redirected.
+  homepage_redirect_allowed_groups:
+    default: ""
+    client: false
+    type: group_list
+    allow_any: false
+    refresh: true
+
+  # always          → home paths ARE the destination for members; every
+  #                   full-page hit redirects. (The feed-is-home model.)
+  # once_per_session→ one nudge after arrival, then home paths behave
+  #                   normally. (The pre-1.0 behavior, now explicit.)
+  homepage_redirect_mode:
+    default: always
+    client: false
+    type: enum
+    choices:
+      - always
+      - once_per_session

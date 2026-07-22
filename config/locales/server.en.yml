@@ -1,0 +1,7 @@
+en:
+  site_settings:
+    homepage_redirect_enabled: "Enable the members-only homepage redirect. When off, members and guests both see the default homepage."
+    homepage_redirect_destination_path: "Internal path logged-in members are redirected to when they visit a home path (must start with '/'; e.g. /feed). Invalid or external values disable the redirect."
+    homepage_redirect_paths: "Paths treated as 'home' for redirect purposes. Default is the site root only. Adding /latest will make that list unreachable for redirected members when mode is 'always'."
+    homepage_redirect_allowed_groups: "Only redirect members of these groups. Leave empty to redirect all logged-in members. Guests are never redirected."
+    homepage_redirect_mode: "'always' = home paths always land members on the destination (destination IS home). 'once_per_session' = redirect once per session, then home paths behave normally."

@@ -1,8 +1,8 @@
 {
-    "name": "discourse-homepage-redirect",
-    "about": "Redirect logged-in users to the AI conversations page",
-    "version": "0.1.0",
-    "authors": "BrianCrawford",
-    "url": "https://community.victoriouschristians.com",
-    "required_version": "3.1.0"
+  "name": "discourse-homepage-redirect",
+  "about": "Server-side homepage redirect for logged-in members; guests keep the default homepage. The audience-split half of the VC landing architecture.",
+  "version": "1.0.0",
+  "authors": "Brian Crawford",
+  "url": "https://github.com/BrianCraword/discourse-homepage-redirect",
+  "required_version": "3.1.0"
 }

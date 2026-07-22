@@ -1,79 +1,62 @@
-# Discourse Homepage Redirect Plugin
+# Discourse Homepage Redirect
 
-Make a **different homepage for logged-in members** without disturbing guests.
+**Server-side homepage redirect for logged-in members. Guests keep the default homepage untouched.**
 
-* **What it does**  
-  When a user is authenticated and visits any of the forum “home” paths (`/` or `/latest`), the plugin transparently redirects them to an admin-chosen URL (for example your AI chat page at `/discourse-ai/ai-bot/conversations`).  
-  Anonymous visitors still see the normal Discourse homepage.
+This plugin is the *audience-split* half of the VC landing architecture:
 
-* **Why you might need it**  
-  - Send members straight to a chat experience, a knowledge-base topic list, or a custom dashboard.  
-  - Keep SEO and landing-page behavior unchanged for logged-out readers.  
-  - Avoid fragile client-side hacks or theme-component work-arounds; this runs server-side.
+- The **homepage claim** (`custom_homepage`) stays with the theme (VC-Canvas / Community Plaza). Guests hitting `/` get the Plaza + landing banner, exactly as before. Nothing in this plugin touches the claim.
+- **Logged-in members** hitting a home path are 302-redirected server-side to a chosen internal destination — on VC, the Feed (`/feed`), the members' front door.
 
----
+Because the redirect fires only for authenticated users, SEO, crawlers, and first-time visitors are unaffected by design.
 
-## Requirements
+## How it works
 
-* Discourse **3.1.0** or newer (tests-passed, beta, or stable).  
-* Works on the official Docker install or any supported production image.
+A `before_action` on `ApplicationController` (included via a concern, `reloadable_patch`-safe) checks, in cost order:
 
----
+1. Plugin enabled, user logged in
+2. Request path is one of the configured **home paths** (default: `/` only)
+3. A valid, internal, non-looping **destination** is configured
+4. The request is a full-page **HTML GET** — never XHR, JSON, API, or user-API traffic
+5. No `?noredirect=1` bypass present
+6. The user is in the **allowed groups** (empty = all members)
+7. The **mode** permits it (`always`, or `once_per_session` not yet consumed)
+
+Then it issues a **302** (never 301 — the decision is per-user and per-setting; a cached permanent redirect would outlive both).
+
+## Settings
+
+| Setting | Default | Purpose |
+|---|---|---|
+| `homepage_redirect_enabled` | `true` | Master switch. Off = stock Discourse behavior for everyone. |
+| `homepage_redirect_destination_path` | `/feed` | Internal path members land on. Must start with a single `/`. Invalid/external values disable the redirect rather than half-working. |
+| `homepage_redirect_paths` | `/` | Paths treated as "home". Deliberately **not** `/latest`: with mode `always`, redirecting `/latest` would make the Latest list permanently unreachable for members. |
+| `homepage_redirect_allowed_groups` | *(empty)* | Scope the redirect to specific groups. Empty = all logged-in members. |
+| `homepage_redirect_mode` | `always` | `always` = home paths **are** the destination for members. `once_per_session` = one nudge, then home paths behave normally (the pre-1.0 behavior, now explicit). |
+
+## Safety properties
+
+- **Loop guard** — a destination that is itself a home path is refused outright.
+- **Internal-only** — destinations must start with a single `/`; protocol-relative (`//host`) and absolute URLs are rejected.
+- **SPA-safe** — JSON/XHR/API requests are never redirected, so background fetches and app traffic are untouched.
+- **Bypass** — append `?noredirect=1` to any URL to skip the redirect (support/debugging).
 
 ## Installation
 
-1. **Add the plugin** to your container definition (`containers/app.yml`):
+```yml
+hooks:
+  after_code:
+    - exec:
+        cd: $home/plugins
+        cmd:
+          - git clone https://github.com/BrianCraword/discourse-homepage-redirect.git
+```
 
-   ```yml
-   hooks:
-     after_code:
-       - exec:
-           cd: $home/plugins
-           cmd:
-             - git clone https://github.com/BrianCraword/discourse-homepage-redirect.git
-Rebuild the container:
+Then `cd /var/discourse && ./launcher rebuild app`. Setting changes take effect immediately, no rebuild.
 
-bash
-Copy
-Edit
-cd /var/discourse
-./launcher rebuild app
-After the site boots, visit Admin → Settings → Plugins and search for “homepage redirect”.
+## Requirements
 
-Configuration
-Setting	Purpose	Default
-homepage_redirect_enabled	Master on/off toggle	true
-homepage_redirect_destination_path	URL to send logged-in users to  ⇢ must be an internal path such as /my, /categories, /discourse-ai/ai-bot/conversations	/discourse-ai/ai-bot/conversations
+Discourse **3.1.0** or newer.
 
-Changes take effect immediately—no additional rebuild required.
+## License
 
-Optional extras (you can uncomment them in config/settings.yml)
-Setting	Example value	Effect
-homepage_redirect_groups	staff, ai_premium	Only members of these groups are redirected
-homepage_redirect_extra_paths	/categories,/top	Treat these routes as “home” too
-homepage_redirect_first_login_only	true	Redirect once after account is created, not forever
-homepage_redirect_allow_param	true	Add ?noredirect=1 to a URL to bypass redirection (useful for support)
-
-How it works
-During each request the plugin inserts a before_action in ApplicationController:
-
-ruby
-Copy
-Edit
-if current_user && ["/", "/latest"].include?(request.path)
-  redirect_to SiteSetting.homepage_redirect_destination_path
-end
-Anonymous traffic is ignored, ensuring bots and new visitors keep the default experience.
-
-Upgrading
-git pull in the plugin folder (or let your container clone a newer commit) and rebuild the app as usual.
-
-Removing the plugin
-Comment out or delete the git clone line in app.yml.
-
-./launcher rebuild app – Discourse will boot without the plugin.
-
-
-MIT – free to use, modify, and distribute.
-
-Happy redirecting!
+MIT.
